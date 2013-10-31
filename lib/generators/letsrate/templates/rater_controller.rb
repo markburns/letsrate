@@ -1,12 +1,11 @@
 class RaterController < ApplicationController
-
   def create
     if current_user.present?
-      obj = params[:klass].classify.constantize.find(params[:id])
-      if params[:dimension].present?
-        obj.rate params[:score].to_i, current_user.id, "#{params[:dimension]}"
+      obj = eval "#{allowed_params[:klass]}.find(#{allowed_params[:id]})"
+      if allowed_params[:dimension].present?
+        obj.rate allowed_params[:score].to_i, current_user.id, "#{allowed_params[:dimension]}"
       else
-        obj.rate params[:score].to_i, current_user.id
+        obj.rate allowed_params[:score].to_i, current_user.id
       end
 
       render :json => true
@@ -15,5 +14,9 @@ class RaterController < ApplicationController
     end
   end
 
+  private
 
+  def allowed_params
+    params.permit :rate, :dimension, :klass, :id, :score
+  end
 end
